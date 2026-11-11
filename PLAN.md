@@ -183,7 +183,28 @@ engine/  (pure recommendation logic, no dependencies)
 jobs/    (scheduler)
 ```
 
-**Suggested folders:** `modules/{auth, users, groups, timetables, recommendations, sessions, notifications, settings}`, each containing route, controller, service, schema, and repository files, plus `common/{errors, middleware, utils}`.
+**Layering is MVC by technical layer, not by feature module.** Each feature
+(`auth`, `users`, `grades`, `groups`, `timetables`, `recommendations`,
+`sessions`, `notifications`, `settings`) contributes one file to each layer:
+
+```
+src/
+├── routes/         paths + guards, bound to controller actions
+├── controllers/    "C": parse input, call the service, send JSON
+├── services/       business rules, transactions
+├── repositories/   data access (Drizzle), plain objects
+├── schemas/        Zod request schemas
+├── models/         "M": tables, enums, checks, indexes
+├── common/         errors, middleware, utils, shared types
+├── engine/         pure recommendation logic
+├── jobs/           scheduler
+└── db/             connection pool, seed
+```
+
+Dependencies point one way only: `routes → controllers → services →
+repositories → models`. The JSON response written by the controller is the
+view; there are no server-rendered templates. Adding a feature adds one file
+per layer and one mount in `routes/index.ts`.
 
 ---
 

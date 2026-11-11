@@ -8,7 +8,7 @@ import { notFound } from "./common/middleware/not-found.js";
 import { apiLimiter } from "./common/middleware/rate-limit.js";
 import { requestId } from "./common/middleware/request-id.js";
 import { logger } from "./common/utils/logger.js";
-import { apiRouter } from "./routes.js";
+import { apiRouter } from "./routes/index.js";
 
 export function createApp(): express.Express {
   const app = express();

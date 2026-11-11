@@ -65,7 +65,7 @@ curl http://localhost:3000/health
 ```
 
 `npm run db:seed` is a placeholder until milestone 7; there is no demo data
-yet. `npm run db:generate` regenerates SQL after editing `src/db/schema.ts`.
+yet. `npm run db:generate` regenerates SQL after editing `src/models/schema.ts`.
 
 ### Environment
 
@@ -93,14 +93,61 @@ readable list of problems. Required: `DATABASE_URL`, `JWT_ACCESS_SECRET`,
 
 ---
 
-## Project layout
+## Architecture: MVC by layer
+
+The code is organised by **technical layer**, not by feature. A feature such as
+"sessions" is spread across the layers, and each layer has one job:
+
+```
+HTTP request
+   │
+   ▼
+routes/          paths + guards only            (Router, middleware chain)
+   │
+   ▼
+controllers/     parse request, call service,   (the "C")
+   │             send the JSON response
+   ▼
+services/        business rules, validation      (service layer)
+   │             that needs data, transactions
+   ▼
+repositories/    SQL via Drizzle, plain objects  (data access)
+   │
+   ▼
+models/          tables, enums, checks, indexes  (the "M")
+```
+
+The **view** is the JSON payload written by the controller; there are no
+server-rendered templates, so there is no `views/` directory. Shared
+cross-cutting code (errors, middleware, time utilities, logging) lives in
+`common/`, and the recommendation engine stays a dependency-free pure module.
+
+Why this shape:
+
+- **MVC for the report.** Model, controller and view are explicit and
+  separately testable.
+- **One direction of dependency.** `routes → controllers → services →
+  repositories → models`. Nothing imports upwards, and controllers never touch
+  Drizzle directly.
+- **Pure core.** `engine/` imports neither Express nor the database, so the
+  hardest logic is unit-testable without mocks.
+
+### Project layout
 
 ```
 .
 ├── src/
 │   ├── app.ts                 # Express assembly: security, logging, routes, errors
 │   ├── server.ts              # listen, scheduler, graceful shutdown
-│   ├── routes.ts              # mounts every module router
+│   ├── routes/
+│   │   ├── index.ts           # composition root: mounts every router
+│   │   └── <feature>.routes.ts# paths + guards, bound to controller actions
+│   ├── controllers/           # "C": one file per feature, thin handlers
+│   ├── services/              # business rules and transactions
+│   ├── repositories/          # Drizzle queries, no Express types
+│   ├── schemas/               # Zod request schemas used by validate()
+│   ├── models/
+│   │   └── schema.ts          # "M": Drizzle tables, enums, checks, indexes
 │   ├── config/
 │   │   ├── env.ts             # Zod-validated environment
 │   │   └── constants.ts       # roles, statuses, session types, center defaults
@@ -114,10 +161,7 @@ readable list of problems. Required: `DATABASE_URL`, `JWT_ACCESS_SECRET`,
 │   │   ├── windows.ts         # step 1: candidate windows  [implemented]
 │   │   └── __tests__/
 │   ├── jobs/                  # node-cron scheduler + automatic transitions
-│   ├── modules/               # one folder per module
-│   │   └── <module>/          # .routes .controller .service .schema .repository
 │   └── db/
-│       ├── schema.ts          # Drizzle tables, enums, checks, indexes
 │       ├── client.ts          # pg pool + Drizzle instance
 │       └── seed.ts            # demo data (milestone 7)
 ├── drizzle/
@@ -129,16 +173,19 @@ readable list of problems. Required: `DATABASE_URL`, `JWT_ACCESS_SECRET`,
 └── TASKS.md                   # milestone task list
 ```
 
-Every module follows the same five files:
+A feature touches five files, one per layer:
 
 ```
-modules/sessions/
-├── sessions.routes.ts         # paths + guards only
-├── sessions.controller.ts     # thin: read req.validated, call service, respond
-├── sessions.service.ts        # business rules, transactions
-├── sessions.schema.ts         # Zod input schemas
-└── sessions.repository.ts     # Drizzle queries, no Express types
+sessions
+├── routes/sessions.routes.ts          # paths + guards only
+├── controllers/sessions.controller.ts # thin: read req.validated, call service, respond
+├── services/sessions.service.ts       # business rules, transactions
+├── schemas/sessions.schema.ts         # Zod input schemas
+└── repositories/sessions.repository.ts# Drizzle queries, no Express types
 ```
+
+Adding a feature means adding one file to each layer and one line in
+`routes/index.ts`; it never means creating a new folder.
 
 ---
 

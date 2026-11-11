@@ -15,7 +15,7 @@ Legend: `[x]` done in the scaffold · `[ ]` to do · **(UC-…)** traceability.
 - [x] **M0-03** Express 5 app with helmet, JSON body limit, cookie parser, request-id, pino logging, global rate limit.
 - [x] **M0-04** Single error shape (`AppError`, `ErrorCode`, error middleware, 404 handler, Zod → 422).
 - [x] **M0-05** Environment validation with Zod and a documented `.env.example`.
-- [x] **M0-06** Module skeleton (`routes/controller/service/schema/repository`) for all nine modules.
+- [x] **M0-06** MVC layer skeleton (`routes/controller/service/schema/repository` files per feature, one folder per layer).
 - [x] **M0-07** Drizzle schema for all tables + initial SQL migration (`drizzle/0000_init.sql`).
 - [x] **M0-08** Pure time utilities (forgiving time parsing, snapping, merging, ISO dates, zone conversion) with tests.
 - [x] **M0-09** Engine step 1: `generateCandidateWindows` with tests.
@@ -36,7 +36,7 @@ behind the correct guards.
 - [ ] **M1-05** Auth integration tests: login success/failure, inactive user, expired/invalid access token, refresh reuse, logout.
 - [ ] **M1-06** Admin user management: list, create teacher, rename, deactivate/reactivate, reset password. Prevent deactivating the last active admin. **(UC-A1)**
 - [ ] **M1-07** Teacher deactivation policy: block if they own planned sessions unless `reassignTo` is supplied; otherwise list the affected sessions. **(§10)**
-- [ ] **M1-08** Settings module: read/update singleton; validate `open < close`, stage end ≤ close, `gridMinutes` divides all times, non-empty operating days, valid IANA zone, min ≤ default ≤ max duration. **(UC-A2)**
+- [ ] **M1-08** Settings endpoints: read/update singleton; validate `open < close`, stage end ≤ close, `gridMinutes` divides all times, non-empty operating days, valid IANA zone, min ≤ default ≤ max duration. **(UC-A2)**
 - [ ] **M1-09** Closed-date management inside settings (list/add/remove with reason) and validation against the target week.
 - [ ] **M1-10** Bootstrap script/command to create the first admin from env vars (idempotent).
 - [ ] **M1-11** Warning/info response convention (`warnings: [{ code, severity, message }]`) documented and shared via a helper.
@@ -178,7 +178,7 @@ here prevents them from silently creeping back in.
 
 ## Conventions for every task
 
-1. Validation in the module's `*.schema.ts`, wired through `validate()`; handlers read `req.validated`.
+1. Validation in `src/schemas/<feature>.schema.ts`, wired through `validate()`; handlers read `req.validated`.
 2. Business rules in `*.service.ts`; SQL in `*.repository.ts`; no Drizzle types leak into controllers.
 3. Errors are `AppError` with a stable `ErrorCode`, a plain message and, when useful, a hint.
 4. Multi-row writes go through a transaction; status changes also write history.
