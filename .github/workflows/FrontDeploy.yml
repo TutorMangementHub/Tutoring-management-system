@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'frontend/tutoring-hub-frontEnd/**'
-      - '.github/workflows/deploy-angular-pages.yml'
+      - '.github/workflows/FrontDeploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -55,7 +55,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/tutoring-hub-frontEnd/browser
+          # `uses:` steps ignore `defaults.run.working-directory`, so this path
+          # is resolved from the repository root.
+          path: frontend/tutoring-hub-frontEnd/dist/tutoring-hub-frontEnd/browser
 
       - name: Deploy to GitHub Pages
         id: deployment
