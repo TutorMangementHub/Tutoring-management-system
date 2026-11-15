@@ -22,7 +22,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             # Navigate to your app directory on the VPS (adjust path as needed)
-            cd /home/mo/Tutoring-management-system
+            cd /home/mo/Tutoring-management-system/backend
 
             # Pull latest changes from main branch
             git pull origin main
