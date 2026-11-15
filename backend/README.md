@@ -77,7 +77,7 @@ The VPS deployment workflow requires these repository Actions secrets:
 
 | Secret | Purpose |
 | --- | --- |
-| `VPS_HOST` | VPS public hostname or IP address |
-| `VPS_USER` | SSH user, currently `mo` |
-| `VPS_PORT` | SSH port, normally `22` |
-| `VPS_SSH_KEY` | Private SSH key authorized on the VPS |
+| `SSH_HOST` | VPS public hostname or IP address |
+| `SSH_USERNAME` | SSH user, currently `mo` |
+| `SSH_PORT` | SSH port, normally `22` |
+| `SSH_PRIVATE_KEY` | Private SSH key authorized on the VPS |
