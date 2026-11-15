@@ -50,3 +50,20 @@ az functionapp deployment source config-zip \
 
 The zip/package root must contain this directory's `host.json`,
 `package.json`, `package-lock.json`, and `src/` contents.
+
+## GitHub Actions authentication
+
+The deployment workflow uses Azure federated credentials (OIDC). Add these
+three **Actions secrets** to the GitHub repository before running the workflow:
+
+| Secret | Value |
+| --- | --- |
+| `AZURE_CLIENT_ID` | Application/client ID of the Azure app registration or service principal |
+| `AZURE_TENANT_ID` | Microsoft Entra tenant/directory ID |
+| `AZURE_SUBSCRIPTION_ID` | `2a7e407e-2367-4738-879a-80d05e5601ee` |
+
+The Azure app registration must also have a federated credential for this
+repository and the `main` branch (and any branch used for manual workflow
+runs). It needs permission to deploy the `BackEndApi` Function App, normally
+through the **Website Contributor** role on the Function App or its resource
+group.
