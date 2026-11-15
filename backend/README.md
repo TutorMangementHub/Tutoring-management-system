@@ -1,69 +1,83 @@
-# BackEndApi Azure Function
+# Tutoring Management API
 
-This directory is the deployable Azure Functions application for the
-`BackEndApi` Function App. It uses the Node.js v4 programming model.
+This directory contains the normal Node.js API deployed to the VPS. It is not
+an Azure Functions application.
 
-## Layout
+## Runtime
 
-- `host.json` contains the Azure Functions host configuration.
-- `src/index.js` initializes the Functions runtime.
-- `src/functions/BackEndApi.js` registers the `BackEndApi` HTTP function.
-- `local.settings.json` is local-only and is intentionally ignored by Git.
+- Node.js 24 or newer
+- npm 11 or newer
+- HTTP port `3000` by default
+- Host `0.0.0.0` by default so the VPS can receive external traffic
 
-The function is available at:
+## Endpoints
 
-```text
-https://<function-app-host>/api/BackEndApi
+`GET /health` and `GET /api/health` return a JSON health response:
+
+```json
+{
+  "status": "ok",
+  "service": "tutoring-management-api",
+  "timestamp": "2026-01-01T00:00:00.000Z"
+}
 ```
 
-It accepts `GET` and `POST` requests without a function key. The current
-handler returns the supplied `name` query parameter or request body as a
-simple health response.
+The root endpoint (`GET /`) returns basic service information. Unknown routes
+return a JSON `404` response.
 
 ## Local development
 
-From this directory:
-
 ```sh
-npm install
+npm ci
+npm test
 npm start
 ```
 
-The Azure Functions Core Tools must be installed for `npm start`.
-
-## Azure target
-
-The deployment target is the existing Function App named `BackEndApi`:
-
-```text
-/subscriptions/2a7e407e-2367-4738-879a-80d05e5601ee/resourceGroups/BackEndApi_group/providers/Microsoft.Web/sites/BackEndApi
-```
-
-Deploy from the repository root with:
+For automatic restart during development:
 
 ```sh
-az functionapp deployment source config-zip \
-  --resource-group BackEndApi_group \
-  --name BackEndApi \
-  --src <package.zip>
+npm run dev
 ```
 
-The zip/package root must contain this directory's `host.json`,
-`package.json`, `package-lock.json`, and `src/` contents.
+Override the defaults when needed:
 
-## GitHub Actions authentication
+```sh
+PORT=3000 HOST=0.0.0.0 npm start
+```
 
-The deployment workflow uses Azure federated credentials (OIDC). Add these
-three **Actions secrets** to the GitHub repository before running the workflow:
+Test the running API with:
 
-| Secret | Value |
+```sh
+curl http://127.0.0.1:3000/health
+```
+
+## VPS deployment
+
+The PM2 configuration in `ecosystem.config.cjs` runs the API from:
+
+```text
+/home/mo/Tutoring-management-system/backend
+```
+
+On the VPS, the initial setup is:
+
+```sh
+cd /home/mo/Tutoring-management-system/backend
+npm ci --omit=dev
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+The GitHub Actions workflow updates the repository, installs production
+dependencies, and restarts this PM2 process after a successful build.
+
+## GitHub Actions secrets
+
+The VPS deployment workflow requires these repository Actions secrets:
+
+| Secret | Purpose |
 | --- | --- |
-| `AZURE_CLIENT_ID` | Application/client ID of the Azure app registration or service principal |
-| `AZURE_TENANT_ID` | Microsoft Entra tenant/directory ID |
-| `AZURE_SUBSCRIPTION_ID` | `2a7e407e-2367-4738-879a-80d05e5601ee` |
-
-The Azure app registration must also have a federated credential for this
-repository and the `main` branch (and any branch used for manual workflow
-runs). It needs permission to deploy the `BackEndApi` Function App, normally
-through the **Website Contributor** role on the Function App or its resource
-group.
+| `VPS_HOST` | VPS public hostname or IP address |
+| `VPS_USER` | SSH user, currently `mo` |
+| `VPS_PORT` | SSH port, normally `22` |
+| `VPS_SSH_KEY` | Private SSH key authorized on the VPS |
