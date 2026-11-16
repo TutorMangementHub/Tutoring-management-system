@@ -13,6 +13,7 @@ concurrency:
 env:
   NODE_VERSION: '24'
   VPS_APP_PATH: /home/mo/Tutoring-management-system
+  
 
 jobs:
   build:
@@ -57,14 +58,18 @@ jobs:
     steps:
       - name: Deploy backend over SSH
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: JWT_SECRET
           script_stop: true
           script: |
             set -eu
+            export JWT_SECRET="${JWT_SECRET}"
             cd "${{ env.VPS_APP_PATH }}"
             git fetch origin main
             git checkout main
