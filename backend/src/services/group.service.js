@@ -1,8 +1,17 @@
 const HttpError = require('../utils/http-error');
 const groupRepository = require('../repositories/group.repository');
+const gradeRepository = require('../repositories/grade.repository');
 
 function listAvailable() {
     return groupRepository.findAll({ isActive: true });
+}
+
+async function createGroup(data) {
+    const grade = await gradeRepository.findById(data.gradeId);
+    if (!grade) {
+        throw HttpError.badRequest('The selected grade does not exist');
+    }
+    return groupRepository.create(data);
 }
 
 async function assertAssignable(groupId, gradeId) {
@@ -16,4 +25,4 @@ async function assertAssignable(groupId, gradeId) {
     return group;
 }
 
-module.exports = { listAvailable, assertAssignable };
+module.exports = { listAvailable, createGroup, assertAssignable };
