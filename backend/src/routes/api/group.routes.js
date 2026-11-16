@@ -1,4 +1,7 @@
 const { Router } = require('express');
+const asyncHandler = require('../../middleware/async-handler');
+const controller = require('../../controllers/api/group.controller');
 
-// TODO: implement the group routes.
-module.exports = Router();
+const router = Router();
+router.get('/', asyncHandler(controller.list));
+module.exports = router;

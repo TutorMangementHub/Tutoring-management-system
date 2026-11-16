@@ -1,13 +1,17 @@
 const HttpError = require('../utils/http-error');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const userRepository = require('../repositories/user.repository');
+const groupRepository = require('../repositories/group.repository');
+const groupService = require('./group.service');
 
 /** Creates a STUDENT account. TEACHER accounts are provisioned by an admin. */
-async function register({ fullName, email, password }) {
+async function register({ fullName, email, password, gradeId, groupId }) {
     const existing = await userRepository.findByEmail(email);
     if (existing) {
         throw HttpError.conflict('An account with this email already exists');
     }
+
+    await groupService.assertAssignable(groupId, gradeId);
 
     const user = await userRepository.create({
         role: 'STUDENT',
@@ -15,9 +19,10 @@ async function register({ fullName, email, password }) {
         email,
         passwordHash: await hashPassword(password),
         isActive: true,
-        groupId: null,
+        groupId,
     });
 
+    await groupRepository.incrementStudentCount(groupId, 1);
     return user.toObject();
 }
 
