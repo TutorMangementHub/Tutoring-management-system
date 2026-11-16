@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> · Study Scheduling</title>
+    <link rel="stylesheet" href="/css/groups.css">
+</head>
+<body class="workspace-body">
+    <div class="workspace-shell">
+        <aside class="workspace-sidebar" aria-label="Teacher workspace navigation">
+            <a class="workspace-brand" href="/groups/new">
+                <strong>Brand name</strong>
+                <span>STUDY SCHEDULING</span>
+            </a>
+
+            <p class="sidebar-label">TEACHER WORKSPACE</p>
+            <nav class="workspace-nav">
+                <a class="workspace-nav-link is-active" href="/groups/new"><span aria-hidden="true">♧</span> Groups</a>
+                <a class="workspace-nav-link" href="#"><span aria-hidden="true">◷</span> Availability</a>
+                <a class="workspace-nav-link" href="#"><span aria-hidden="true">☆</span> Recommendations</a>
+                <a class="workspace-nav-link" href="#"><span aria-hidden="true">□</span> Calendar</a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+            <section class="sidebar-tip">
+                <strong>Less juggling, more teaching.</strong>
+                <p>Find the time that works for every group.</p>
+            </section>
+            <form method="post" action="/logout" class="logout-form">
+                <button type="submit">↪ &nbsp; Logout</button>
+            </form>
+        </aside>
+
+        <main class="workspace-main">
+            <header class="workspace-header">
+                <span>Groups</span>
+                <div class="account-menu">
+                    <strong><%= user?.email || 'Teacher' %>⌄</strong>
+                    <small>Teacher</small>
+                </div>
+            </header>
+
+            <div class="workspace-content">
+                <div class="page-heading">
+                    <h1>Create a group</h1>
+                    <p>Teacher workspace</p>
+                </div>
+
+                <% if (error) { %>
+                    <div class="page-alert" role="alert"><%= error %></div>
+                <% } %>
+                <% if (typeof created !== 'undefined' && created) { %>
+                    <div class="page-success" role="status">Your group was created successfully.</div>
+                <% } %>
+
+                <div class="create-layout">
+                    <section class="create-card" aria-labelledby="create-group-title">
+                        <h2 id="create-group-title">A new class, ready to plan.</h2>
+                        <form method="post" action="/groups" class="group-form">
+                            <label for="name">Group name</label>
+                            <input id="name" name="name" type="text" value="<%= values.name %>" placeholder="Group name" maxlength="100" required>
+                            <p class="field-help">Maximum 100 characters · Must be unique</p>
+
+                            <label for="gradeId">Grade level</label>
+                            <select id="gradeId" name="gradeId" required>
+                                <option value="">Select a grade</option>
+                                <% grades.forEach((grade) => { %>
+                                    <option value="<%= grade._id %>" <%= String(values.gradeId) === String(grade._id) ? 'selected' : '' %>><%= grade.level %></option>
+                                <% }) %>
+                            </select>
+
+                            <label for="number">Group number</label>
+                            <input id="number" name="number" type="number" min="1" step="1" value="<%= values.number %>" placeholder="e.g. 1" required>
+                            <p class="field-help">The number must be unique within the selected grade.</p>
+
+                            <div class="form-actions">
+                                <button class="primary-button" type="submit">Create group</button>
+                                <a class="secondary-button" href="/groups/new">Cancel</a>
+                            </div>
+                        </form>
+                    </section>
+
+                    <aside class="info-card">
+                        <h2>Students join on their own</h2>
+                        <p>Once the group exists, students pick it from a list when they register.</p>
+                        <p>You can then add its weekly free-time slots.</p>
+                    </aside>
+                </div>
+
+                <p class="breadcrumb">US-03 &nbsp;/&nbsp; Groups &nbsp;/&nbsp; Create a group</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
