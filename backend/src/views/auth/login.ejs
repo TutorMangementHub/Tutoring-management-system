@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="auth-body">
+    <main class="auth-shell">
+        <section class="auth-card" aria-labelledby="login-title">
+            <div class="brand-mark" aria-hidden="true">T</div>
+            <p class="eyebrow">Tutoring Management</p>
+            <h1 id="login-title">Teacher sign in</h1>
+            <p class="subtitle">Sign in to manage your tutoring schedule.</p>
+
+            <% if (error) { %>
+                <p class="form-error" role="alert"><%= error %></p>
+            <% } %>
+
+            <form method="post" action="/login" class="auth-form">
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" value="<%= values.email %>" autocomplete="username" required>
+
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" autocomplete="current-password" required>
+
+                <button type="submit">Sign in</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

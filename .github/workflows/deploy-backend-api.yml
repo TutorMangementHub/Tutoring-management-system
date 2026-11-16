@@ -39,8 +39,8 @@ jobs:
       - name: Check JavaScript syntax
         working-directory: backend
         run: |
-          node --check src/index.js
-          node --check src/server.js
+          find src scripts -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check mongo-schema.js
           node --check ecosystem.config.cjs
 
       - name: Run tests
