@@ -60,16 +60,17 @@ jobs:
         uses: appleboy/ssh-action@v1.2.2
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: JWT_SECRET
-          script_stop: true
+          envs: JWT_SECRET,MONGODB_URI
           script: |
             set -eu
             export JWT_SECRET="${JWT_SECRET}"
+            export MONGODB_URI="${MONGODB_URI}"
             cd "${{ env.VPS_APP_PATH }}"
             git fetch origin main
             git checkout main
@@ -78,6 +79,10 @@ jobs:
             test -f ecosystem.config.cjs
             npm ci --omit=dev
             pm2 --version
-            pm2 startOrRestart ecosystem.config.cjs --only tutoring-management-api --update-env
+            
+            # Restart with updated env or fallback to initial start
+            pm2 restart tutoring-management-api --update-env || pm2 start ecosystem.config.cjs --only tutoring-management-api
             pm2 save
+            
+            sleep 2
             curl --fail --silent --show-error http://127.0.0.1:3000/health
