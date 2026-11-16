@@ -11,6 +11,7 @@
     "dev": "nodemon src/server.js",
     "test": "node --test",
     "seed": "node scripts/seed.js",
+    "db:seed": "node scripts/seed.js",
     "db:schema": "node scripts/apply-mongo-schema.js"
   },
   "main": "src/server.js",
@@ -28,6 +29,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "mongodb": "^6.22.0",
     "nodemon": "^3.1.14"
   }
 }

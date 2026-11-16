@@ -51,6 +51,30 @@ Test the running API with:
 curl http://127.0.0.1:3000/health
 ```
 
+## Database setup
+
+Copy `.env.example` to `.env` and set `MONGODB_URI` to the remote MongoDB
+database. The schema command is safe to re-run and creates or updates the
+application collections, validators, and indexes:
+
+```sh
+npm ci
+npm run db:schema
+```
+
+To create the initial grades, teacher account, and sample groups, also set
+`TEACHER_EMAIL`, `TEACHER_PASSWORD`, and optionally `TEACHER_NAME`, then run:
+
+```sh
+npm run db:seed
+```
+
+Teachers are stored in the `users` collection with `role: "TEACHER"`; there
+is intentionally no separate `teachers` collection. The schema includes the
+`grades`, `groups`, `users`, `freeSlots`, `sessions`, and `notifications`
+collections. Groups reference grades through `gradeId`, and the unique
+`(gradeId, number)` index prevents duplicate group numbers within a grade.
+
 ## VPS deployment
 
 The PM2 configuration in `ecosystem.config.cjs` runs the API from:

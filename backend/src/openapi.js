@@ -15,6 +15,7 @@ const openapi = {
     tags: [
         { name: 'Health', description: 'Application and database health checks' },
         { name: 'Authentication', description: 'Student registration and account authentication' },
+        { name: 'Groups', description: 'Teacher-managed student groups' },
     ],
     paths: {
         '/health': {
@@ -127,6 +128,39 @@ const openapi = {
                 },
             },
         },
+        '/api/groups': {
+            get: {
+                tags: ['Groups'],
+                summary: 'List active student groups',
+                operationId: 'listGroups',
+                responses: {
+                    200: {
+                        description: 'Active groups',
+                        content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Group' } } } },
+                    },
+                },
+            },
+            post: {
+                tags: ['Groups'],
+                summary: 'Create a student group',
+                operationId: 'createGroup',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateGroupRequest' } } },
+                },
+                responses: {
+                    201: {
+                        description: 'Group created',
+                        content: { 'application/json': { schema: { $ref: '#/components/schemas/Group' } } },
+                    },
+                    400: { $ref: '#/components/responses/ValidationError' },
+                    401: { $ref: '#/components/responses/UnauthorizedError' },
+                    403: { $ref: '#/components/responses/ForbiddenError' },
+                    409: { $ref: '#/components/responses/ConflictError' },
+                },
+            },
+        },
     },
     components: {
         securitySchemes: {
@@ -188,6 +222,28 @@ const openapi = {
                     user: { $ref: '#/components/schemas/User' },
                 },
             },
+            CreateGroupRequest: {
+                type: 'object',
+                required: ['gradeId', 'number', 'name'],
+                properties: {
+                    gradeId: { type: 'string', pattern: '^[0-9a-fA-F]{24}$' },
+                    number: { type: 'integer', minimum: 1 },
+                    name: { type: 'string', minLength: 1, maxLength: 100 },
+                    isActive: { type: 'boolean', default: true },
+                },
+            },
+            Group: {
+                type: 'object',
+                required: ['_id', 'gradeId', 'number', 'name', 'isActive', 'studentCount'],
+                properties: {
+                    _id: { type: 'string' },
+                    gradeId: { type: 'object', properties: { _id: { type: 'string' }, level: { type: 'string' } } },
+                    number: { type: 'integer' },
+                    name: { type: 'string' },
+                    isActive: { type: 'boolean' },
+                    studentCount: { type: 'integer', minimum: 0 },
+                },
+            },
             ErrorResponse: {
                 type: 'object',
                 properties: {
@@ -209,6 +265,10 @@ const openapi = {
             },
             UnauthorizedError: {
                 description: 'Authentication required or credentials are invalid',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+            },
+            ForbiddenError: {
+                description: 'Authenticated user does not have the required role',
                 content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
             },
             ConflictError: {
