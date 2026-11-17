@@ -6,6 +6,7 @@ const controller = require('../../controllers/web/group.controller');
 
 const router = Router();
 
+router.get('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.indexPage));
 router.get('/groups/new', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.createPage));
 router.post('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.create));
 

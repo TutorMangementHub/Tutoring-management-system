@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> · Tutor Hub</title>
+    <link rel="stylesheet" href="/css/groups.css">
+</head>
+<body class="workspace-body">
+    <div class="workspace-shell">
+        <%- include('../partials/teacher-sidebar', { active: 'groups', teacher }) %>
+        <main class="workspace-main">
+            <div class="workspace-content">
+                <header class="page-heading page-heading-row">
+                    <div>
+                        <h1>Available groups</h1>
+                        <p>Check the groups currently available to students.</p>
+                    </div>
+                    <a class="primary-button add-group-button" href="/groups/new">+ Add group</a>
+                </header>
+
+                <% if (groups.length === 0) { %>
+                    <section class="empty-card">
+                        <h2>No groups yet</h2>
+                        <p>Add your first group so students can choose it during registration.</p>
+                        <a class="primary-button" href="/groups/new">+ Add group</a>
+                    </section>
+                <% } else { %>
+                    <section class="group-list" aria-label="Available groups">
+                        <% groups.forEach((group) => { %>
+                            <article class="group-row">
+                                <div>
+                                    <h2><%= group.name %></h2>
+                                    <p><%= group.gradeId?.level || 'Grade' %> · <%= group.studentCount %> students</p>
+                                </div>
+                                <span class="status-badge <%= group.isActive ? 'is-active' : 'is-inactive' %>"><%= group.isActive ? 'Active' : 'Inactive' %></span>
+                            </article>
+                        <% }) %>
+                    </section>
+                <% } %>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

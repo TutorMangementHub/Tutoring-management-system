@@ -1,0 +1,20 @@
+<aside class="sidebar" aria-label="Teacher workspace navigation">
+    <a class="sidebar-brand" href="/groups">Tutor Hub</a>
+
+    <nav class="sidebar-nav">
+        <a class="sidebar-link <%= active === 'groups' ? 'is-active' : '' %>" href="/groups">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.6c2.6 0 4.7 1.9 4.7 4.4"/>
+            </svg>
+            <span>Groups</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <p class="sidebar-user"><%= teacher.name %></p>
+        <p class="sidebar-role">Tutor</p>
+        <form method="post" action="/logout" class="sidebar-logout">
+            <button type="submit">Log out</button>
+        </form>
+    </div>
+</aside>

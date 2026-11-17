@@ -1,6 +1,28 @@
 const { createGroupSchema } = require('../../schemas/group.schema');
 const gradeRepository = require('../../repositories/grade.repository');
 const groupService = require('../../services/group.service');
+const groupRepository = require('../../repositories/group.repository');
+const authService = require('../../services/auth.service');
+
+async function teacherDetails(user) {
+    const profile = await authService.getProfile(user.id);
+    return {
+        name: profile.fullName || 'Teacher',
+        email: profile.email || user.email || '',
+    };
+}
+
+async function indexPage(request, response) {
+    const [groups, teacher] = await Promise.all([
+        groupRepository.findAll(),
+        teacherDetails(request.user),
+    ]);
+    response.render('groups/index', {
+        title: 'Groups',
+        groups,
+        teacher,
+    });
+}
 
 async function renderCreatePage(response, {
     grades,
@@ -21,6 +43,7 @@ async function renderCreatePage(response, {
         error,
         created,
         user,
+        teacher: await teacherDetails(user),
     });
 }
 
@@ -62,6 +85,7 @@ async function create(request, response) {
 }
 
 module.exports = {
+    indexPage,
     createPage,
     create,
 };
