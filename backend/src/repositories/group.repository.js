@@ -31,4 +31,8 @@ function incrementStudentCount(id, delta) {
     return Group.updateOne({ _id: id }, { $inc: { studentCount: delta } });
 }
 
-module.exports = { findAll, findPage, findById, create, incrementStudentCount };
+function deleteById(id) {
+    return Group.findByIdAndDelete(id).lean();
+}
+
+module.exports = { findAll, findPage, findById, create, incrementStudentCount, deleteById };

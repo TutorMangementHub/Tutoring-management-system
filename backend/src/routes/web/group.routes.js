@@ -17,5 +17,6 @@ router.post(
     authorize('TEACHER'),
     asyncHandler(controller.removeStudent),
 );
+router.post('/groups/:id/delete', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.deleteGroup));
 
 module.exports = router;

@@ -34,6 +34,17 @@ async function removeStudent(request, response) {
     }
 }
 
+async function deleteGroup(request, response) {
+    try {
+        await groupService.deleteGroup(request.params.id);
+        response.redirect('/groups?deleted=1');
+    } catch (error) {
+        response.redirect(
+            `/groups?error=${encodeURIComponent(error.message || 'The group could not be deleted.')}`,
+        );
+    }
+}
+
 async function indexPage(request, response) {
     const [groupPage, teacher] = await Promise.all([
         groupService.listGroupPage(request.query),
@@ -49,6 +60,8 @@ async function indexPage(request, response) {
         search: groupPage.search,
         gradeId: groupPage.gradeId,
         teacher,
+        error: request.query.error || null,
+        deleted: request.query.deleted === '1',
     });
 }
 
@@ -118,4 +131,5 @@ module.exports = {
     create,
     studentsPage,
     removeStudent,
+    deleteGroup,
 };

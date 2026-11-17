@@ -19,6 +19,12 @@
                     <a class="primary-button add-group-button" href="/groups/new">+ Add group</a>
                 </header>
 
+                <% if (error) { %>
+                    <div class="page-alert"><%= error %></div>
+                <% } else if (deleted) { %>
+                    <div class="page-success">The group was deleted.</div>
+                <% } %>
+
                 <form class="group-filters" method="get" action="/groups">
                     <input type="search" name="search" value="<%= search %>" placeholder="Search groups by name" aria-label="Search groups by name">
                     <select name="gradeId" aria-label="Filter by grade">
@@ -46,6 +52,12 @@
                                     <p><%= group.gradeId?.level || 'Grade' %> · <%= group.studentCount %> students</p>
                                 </div>
                                 <span class="status-badge <%= group.isActive ? 'is-active' : 'is-inactive' %>"><%= group.isActive ? 'Active' : 'Inactive' %></span>
+                                <a class="secondary-button view-students-button" href="/groups/<%= group._id %>/students">View students</a>
+                                <% if (group.studentCount === 0) { %>
+                                    <form method="post" action="/groups/<%= group._id %>/delete" onsubmit="return confirm('Delete this group? This cannot be undone.');">
+                                        <button class="danger-button" type="submit">Delete</button>
+                                    </form>
+                                <% } %>
                                 <div class="group-actions">
                                     <a class="secondary-button view-students-button" href="/groups/<%= group._id %>/students">View students</a>
                                     <a class="secondary-button" href="/groups/<%= group._id %>/slots">Set free time</a>
