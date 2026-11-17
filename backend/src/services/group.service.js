@@ -1,6 +1,7 @@
 const HttpError = require('../utils/http-error');
 const groupRepository = require('../repositories/group.repository');
 const gradeRepository = require('../repositories/grade.repository');
+const userRepository = require('../repositories/user.repository');
 
 const DEFAULT_PAGE_SIZE = 8;
 
@@ -51,4 +52,40 @@ async function assertAssignable(groupId, gradeId) {
     return group;
 }
 
-module.exports = { listAvailable, listGroupPage, createGroup, assertAssignable };
+async function getGroupOrThrow(groupId) {
+    const group = await groupRepository.findById(groupId);
+    if (!group) {
+        throw HttpError.notFound('The group was not found');
+    }
+    return group;
+}
+
+/** Students currently enrolled in the given group. */
+async function listStudents(groupId) {
+    const group = await getGroupOrThrow(groupId);
+    const students = await userRepository.findAll({ groupId: group._id, role: 'STUDENT' });
+    return { group, students };
+}
+
+/** Remove a student who joined a group by mistake and keep the roster count in sync. */
+async function removeStudent(groupId, studentId) {
+    const group = await getGroupOrThrow(groupId);
+
+    const student = await userRepository.findById(studentId);
+    if (!student || student.role !== 'STUDENT' || String(student.groupId) !== String(group._id)) {
+        throw HttpError.notFound('The student is not enrolled in this group');
+    }
+
+    const removed = await userRepository.clearGroupById(student._id);
+    if (!removed) {
+        throw HttpError.conflict('The student could not be removed from the group');
+    }
+
+    if (group.studentCount > 0) {
+        await groupRepository.incrementStudentCount(group._id, -1);
+    }
+
+    return { group: await groupRepository.findById(group._id), student: removed };
+}
+
+module.exports = { listAvailable, listGroupPage, createGroup, assertAssignable, listStudents, removeStudent };
