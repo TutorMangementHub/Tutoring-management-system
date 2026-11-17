@@ -15,6 +15,7 @@ const asyncHandler = require('./middleware/async-handler');
 const openapi = require('./openapi');
 const webAuthRoutes = require('./routes/web/auth.routes');
 const webGroupRoutes = require('./routes/web/group.routes');
+const webFreeSlotRoutes = require('./routes/web/freeSlot.routes');
 
 const SERVICE_NAME = 'tutoring-management-api';
 
@@ -60,6 +61,7 @@ function createApp() {
 
     app.use('/', webAuthRoutes);
     app.use('/', webGroupRoutes);
+    app.use('/', webFreeSlotRoutes);
 
     app.get(
         '/health/ready',
