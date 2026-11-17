@@ -40,9 +40,6 @@ body { margin: 0; background: #0b0b0b; }
 .group-row:last-child { border-bottom: 0; }
 .group-row h2 { margin: 0; color: #f3f3f3; font-size: 20px; }
 .group-row p { margin: 6px 0 0; color: #9b9b9b; font-size: 15px; }
-.status-badge { border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 700; }
-.status-badge.is-active { background: #123d29; color: #4ade80; }
-.status-badge.is-inactive { background: #3b2525; color: #f87171; }
 .empty-card { padding: 42px; text-align: center; }
 .empty-card h2 { margin: 0; font-size: 23px; }
 .empty-card p { margin: 10px 0 24px; color: #9b9b9b; }
@@ -68,7 +65,9 @@ body { margin: 0; background: #0b0b0b; }
 
 /* Group actions */
 .group-row { flex-wrap: wrap; }
+.group-info { min-width: 0; }
 .group-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; }
+.group-actions form { margin: 0; }
 
 /* Free time calendar */
 .slots-page { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Arial, sans-serif; scroll-behavior: smooth; }
