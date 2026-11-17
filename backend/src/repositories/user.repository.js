@@ -35,10 +35,15 @@ function clearGroupById(id) {
     ).lean();
 }
 
+function count(filter = {}) {
+    return User.countDocuments(filter);
+}
+
 module.exports = {
     findById,
     findByEmail,
     create,
     findAll,
     clearGroupById,
+    count,
 };

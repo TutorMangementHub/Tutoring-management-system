@@ -88,4 +88,21 @@ async function removeStudent(groupId, studentId) {
     return { group: await groupRepository.findById(group._id), student: removed };
 }
 
-module.exports = { listAvailable, listGroupPage, createGroup, assertAssignable, listStudents, removeStudent };
+/** Delete a group that is not used by any student. */
+async function deleteGroup(groupId) {
+    const group = await getGroupOrThrow(groupId);
+
+    const enrolledCount = await userRepository.count({ groupId: group._id, role: 'STUDENT' });
+    if (enrolledCount > 0) {
+        throw HttpError.conflict('This group still has enrolled students and cannot be deleted');
+    }
+
+    const deleted = await groupRepository.deleteById(group._id);
+    if (!deleted) {
+        throw HttpError.conflict('The group could not be deleted');
+    }
+
+    return deleted;
+}
+
+module.exports = { listAvailable, listGroupPage, createGroup, assertAssignable, listStudents, removeStudent, deleteGroup };
