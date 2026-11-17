@@ -58,6 +58,10 @@
                                         <button class="danger-button" type="submit">Delete</button>
                                     </form>
                                 <% } %>
+                                <div class="group-actions">
+                                    <a class="secondary-button view-students-button" href="/groups/<%= group._id %>/students">View students</a>
+                                    <a class="secondary-button" href="/groups/<%= group._id %>/slots">Set free time</a>
+                                </div>
                             </article>
                         <% }) %>
                     </section>

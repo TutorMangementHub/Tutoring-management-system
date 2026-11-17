@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> · Tutor Hub</title>
+    <link rel="stylesheet" href="/css/groups.css">
+</head>
+<body class="workspace-body slots-page">
+    <div class="workspace-shell">
+        <%- include('../partials/teacher-sidebar', { active: 'groups', teacher }) %>
+        <main class="workspace-main">
+            <div class="workspace-content">
+                <header class="calendar-toolbar">
+                    <div>
+                        <a class="back-link" href="/groups">← Groups</a>
+                        <div class="calendar-title-row">
+                            <span class="calendar-mark" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="5" width="18" height="16" rx="4"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8 14h2M14 14h2M8 18h2"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <h1>Free time · <%= group.name %> · <%= group.gradeLevel %></h1>
+                                <p>Weekly timetable · when this group's students are available.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="calendar-add-button" href="#add-slot" aria-label="Add a free time slot" title="Add a free time slot">+</a>
+                </header>
+
+                <% if (error) { %>
+                    <div class="page-alert" role="alert"><%= error %></div>
+                <% } %>
+
+                <section class="slots-grid" aria-label="Weekly free time">
+                    <% days.forEach((day) => { %>
+                        <% const daySlots = slotsByDay[day] || []; %>
+                        <% const dayName = day.charAt(0) + day.slice(1).toLowerCase(); %>
+                        <article class="slot-day">
+                            <header class="slot-day-header">
+                                <h2><abbr title="<%= dayName %>"><%= day.slice(0, 3) %></abbr></h2>
+                                <span class="slot-day-count" title="<%= daySlots.length %> slots"><%= daySlots.length %></span>
+                            </header>
+                            <div class="slot-day-body">
+                                <% if (daySlots.length === 0) { %>
+                                    <p class="slot-empty">No slots</p>
+                                <% } else { %>
+                                    <ul class="slot-list">
+                                        <% daySlots.forEach((slot) => { %>
+                                            <% const slotLabel = `${formatTime(slot.startMin)} - ${formatTime(slot.endMin)}`; %>
+                                            <li class="slot-chip">
+                                                <span class="slot-chip-time"><%= slotLabel %></span>
+                                                <form class="slot-remove" method="post" action="/groups/<%= group._id %>/slots/<%= slot._id %>/delete">
+                                                    <button type="submit" aria-label="Remove <%= slotLabel %> on <%= dayName %>" title="Remove slot">×</button>
+                                                </form>
+                                            </li>
+                                        <% }) %>
+                                    </ul>
+                                <% } %>
+                            </div>
+                        </article>
+                    <% }) %>
+                </section>
+
+                <section class="slot-composer" id="add-slot" aria-labelledby="add-slot-title">
+                    <div class="slot-composer-heading">
+                        <div>
+                            <h2 id="add-slot-title">New free time</h2>
+                            <p>Pick a weekday and a time range.</p>
+                        </div>
+                        <span class="slot-composer-badge">Mon – Sat</span>
+                    </div>
+                    <form class="slot-form" method="post" action="/groups/<%= group._id %>/slots">
+                        <label class="slot-field" for="dayOfWeek">
+                            <span>Day</span>
+                            <select id="dayOfWeek" name="dayOfWeek" required>
+                                <% days.forEach((day) => { %>
+                                    <option value="<%= day %>" <%= values.dayOfWeek === day ? 'selected' : '' %>><%= day.charAt(0) + day.slice(1).toLowerCase() %></option>
+                                <% }) %>
+                            </select>
+                        </label>
+                        <label class="slot-field" for="start">
+                            <span>Start</span>
+                            <input id="start" name="start" type="time" min="08:00" max="17:00" value="<%= values.start %>" required>
+                        </label>
+                        <label class="slot-field" for="end">
+                            <span>End</span>
+                            <input id="end" name="end" type="time" min="08:00" max="17:00" value="<%= values.end %>" required>
+                        </label>
+                        <button class="primary-button slot-submit" type="submit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Add slot
+                        </button>
+                    </form>
+                    <p class="slot-form-hint">Available between 08:00 and 17:00 · Up to 8 slots per day · Slots cannot overlap.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
