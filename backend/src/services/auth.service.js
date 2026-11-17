@@ -49,8 +49,17 @@ async function getProfile(userId) {
     return user;
 }
 
+async function getTeacherSummary(userId) {
+    const user = await getProfile(userId);
+    return {
+        name: user.fullName || 'Teacher',
+        email: user.email || '',
+    };
+}
+
 module.exports = {
     register,
     login,
     getProfile,
+    getTeacherSummary,
 };
