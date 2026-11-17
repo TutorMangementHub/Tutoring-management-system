@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> · Tutor Hub</title>
+    <link rel="stylesheet" href="/css/groups.css">
+</head>
+<body class="workspace-body">
+    <div class="workspace-shell">
+        <%- include('../partials/teacher-sidebar', { active: 'groups', teacher }) %>
+        <main class="workspace-main">
+            <div class="workspace-content">
+                <header class="page-heading">
+                    <a class="back-link" href="/groups">← Groups</a>
+                    <h1>Free time · <%= group.name %> · <%= group.gradeLevel %></h1>
+                    <p>Weekly timetable · when this group's students are available.</p>
+                </header>
+
+                <% if (error) { %>
+                    <div class="page-alert" role="alert"><%= error %></div>
+                <% } %>
+
+                <section class="slots-grid" aria-label="Weekly free time">
+                    <% days.forEach((day) => { %>
+                        <% const daySlots = slotsByDay[day] || []; %>
+                        <article class="slot-day">
+                            <h2><%= day.charAt(0) + day.slice(1).toLowerCase() %></h2>
+                            <% if (daySlots.length === 0) { %>
+                                <p class="slot-empty">No slots</p>
+                            <% } else { %>
+                                <ul class="slot-list">
+                                    <% daySlots.forEach((slot) => { %>
+                                        <% const slotLabel = `${formatTime(slot.startMin)} - ${formatTime(slot.endMin)}`; %>
+                                        <li class="slot-chip">
+                                            <span><%= slotLabel %></span>
+                                            <form class="slot-remove" method="post" action="/groups/<%= group._id %>/slots/<%= slot._id %>/delete">
+                                                <button type="submit" aria-label="Remove <%= slotLabel %> on <%= day.charAt(0) + day.slice(1).toLowerCase() %>" title="Remove slot">×</button>
+                                            </form>
+                                        </li>
+                                    <% }) %>
+                                </ul>
+                            <% } %>
+                        </article>
+                    <% }) %>
+                </section>
+
+                <h2 class="slot-form-title">Add a free time slot</h2>
+                <form class="slot-form" method="post" action="/groups/<%= group._id %>/slots">
+                    <label class="slot-field" for="dayOfWeek">
+                        <span>Day</span>
+                        <select id="dayOfWeek" name="dayOfWeek" required>
+                            <% days.forEach((day) => { %>
+                                <option value="<%= day %>" <%= values.dayOfWeek === day ? 'selected' : '' %>><%= day.charAt(0) + day.slice(1).toLowerCase() %></option>
+                            <% }) %>
+                        </select>
+                    </label>
+                    <label class="slot-field" for="start">
+                        <span>Start</span>
+                        <input id="start" name="start" type="time" value="<%= values.start %>" required>
+                    </label>
+                    <label class="slot-field" for="end">
+                        <span>End</span>
+                        <input id="end" name="end" type="time" value="<%= values.end %>" required>
+                    </label>
+                    <button class="primary-button" type="submit">Add slot</button>
+                </form>
+                <p class="slot-form-hint">Up to 8 slots per day. Slots cannot overlap.</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -46,7 +46,10 @@
                                     <p><%= group.gradeId?.level || 'Grade' %> · <%= group.studentCount %> students</p>
                                 </div>
                                 <span class="status-badge <%= group.isActive ? 'is-active' : 'is-inactive' %>"><%= group.isActive ? 'Active' : 'Inactive' %></span>
-                                <a class="secondary-button view-students-button" href="/groups/<%= group._id %>/students">View students</a>
+                                <div class="group-actions">
+                                    <a class="secondary-button view-students-button" href="/groups/<%= group._id %>/students">View students</a>
+                                    <a class="secondary-button" href="/groups/<%= group._id %>/slots">Set free time</a>
+                                </div>
                             </article>
                         <% }) %>
                     </section>
