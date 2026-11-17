@@ -15,16 +15,4 @@ router.post(
     validate(createGroupSchema),
     asyncHandler(controller.create),
 );
-router.get(
-    '/:id/students',
-    authenticateApi,
-    authorize('TEACHER'),
-    asyncHandler(controller.listStudents),
-);
-router.delete(
-    '/:id/students/:studentId',
-    authenticateApi,
-    authorize('TEACHER'),
-    asyncHandler(controller.removeStudent),
-);
 module.exports = router;
