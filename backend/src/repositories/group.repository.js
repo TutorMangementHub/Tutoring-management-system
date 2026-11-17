@@ -4,6 +4,19 @@ function findAll(filter = {}) {
     return Group.find(filter).populate('gradeId', 'level').sort({ gradeId: 1, number: 1 }).lean();
 }
 
+function findPage({ filter = {}, page = 1, pageSize = 10 } = {}) {
+    const skip = (page - 1) * pageSize;
+    return Promise.all([
+        Group.countDocuments(filter),
+        Group.find(filter)
+            .populate('gradeId', 'level')
+            .sort({ gradeId: 1, number: 1, name: 1 })
+            .skip(skip)
+            .limit(pageSize)
+            .lean(),
+    ]).then(([total, groups]) => ({ groups, total, page, pageSize }));
+}
+
 function findById(id) {
     return Group.findById(id).lean();
 }
@@ -18,4 +31,4 @@ function incrementStudentCount(id, delta) {
     return Group.updateOne({ _id: id }, { $inc: { studentCount: delta } });
 }
 
-module.exports = { findAll, findById, create, incrementStudentCount };
+module.exports = { findAll, findPage, findById, create, incrementStudentCount };

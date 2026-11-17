@@ -13,7 +13,7 @@ function redirectAuthenticatedWeb(request, response, next) {
 
     try {
         verifyAccessToken(token);
-        response.redirect('/teacher/dashboard');
+        response.redirect('/groups');
     } catch {
         // Expired/invalid cookies should not block the public auth pages.
         response.clearCookie(cookieName, { path: '/' });

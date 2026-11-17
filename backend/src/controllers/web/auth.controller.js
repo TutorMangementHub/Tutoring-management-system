@@ -54,7 +54,7 @@ async function login(request, response) {
         }
 
         setWebCookie(response, user);
-        response.render('auth/success', { title: 'Login successful', action: 'logged in' });
+        response.redirect('/groups');
     } catch (error) {
         renderAuthError(response, 'auth/login', request.body, error);
     }
