@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> · Tutor Hub</title>
+    <link rel="stylesheet" href="/css/groups.css">
+</head>
+<body class="workspace-body">
+    <div class="workspace-shell">
+        <%- include('../partials/teacher-sidebar', { active: 'groups', teacher }) %>
+        <main class="workspace-main">
+            <div class="workspace-content">
+                <header class="page-heading page-heading-row">
+                    <div>
+                        <h1><%= group.name %> · Students</h1>
+                        <p><%= group.gradeId?.level || 'Grade' %> · <%= students.length %> enrolled</p>
+                    </div>
+                    <a class="secondary-button" href="/groups">← Back to groups</a>
+                </header>
+
+                <% if (error) { %>
+                    <div class="roster-error"><%= error %></div>
+                <% } %>
+
+                <% if (students.length === 0) { %>
+                    <section class="empty-card">
+                        <h2>No students yet</h2>
+                        <p>Students who pick this group during registration will appear here.</p>
+                    </section>
+                <% } else { %>
+                    <section class="group-list" aria-label="Enrolled students">
+                        <% students.forEach((student) => { %>
+                            <article class="group-row student-row">
+                                <div>
+                                    <h2><%= student.fullName %></h2>
+                                    <p><%= student.email %> · joined <%= new Date(student.createdAt).toLocaleDateString('en-GB') %></p>
+                                </div>
+                                <form method="post" action="/groups/<%= group._id %>/students/<%= student._id %>/remove">
+                                    <button class="danger-button" type="submit">Remove</button>
+                                </form>
+                            </article>
+                        <% }) %>
+                    </section>
+                <% } %>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

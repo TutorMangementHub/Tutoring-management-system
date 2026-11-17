@@ -7,6 +7,33 @@ async function teacherDetails(user) {
     return authService.getTeacherSummary(user.id);
 }
 
+async function studentsPage(request, response) {
+    try {
+        const { group, students } = await groupService.listStudents(request.params.id);
+        response.render('groups/students', {
+            title: `${group.name} · Students`,
+            group,
+            students,
+            teacher: await teacherDetails(request.user),
+            error: request.query.error || null,
+        });
+    } catch {
+        response.redirect('/groups');
+    }
+}
+
+async function removeStudent(request, response) {
+    const { id, studentId } = request.params;
+    try {
+        await groupService.removeStudent(id, studentId);
+        response.redirect(`/groups/${id}/students`);
+    } catch (error) {
+        response.redirect(
+            `/groups/${id}/students?error=${encodeURIComponent(error.message || 'The student could not be removed.')}`,
+        );
+    }
+}
+
 async function indexPage(request, response) {
     const [groupPage, teacher] = await Promise.all([
         groupService.listGroupPage(request.query),
@@ -89,4 +116,6 @@ module.exports = {
     indexPage,
     createPage,
     create,
+    studentsPage,
+    removeStudent,
 };

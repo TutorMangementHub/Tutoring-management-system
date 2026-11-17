@@ -10,4 +10,12 @@ router.get('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(contro
 router.get('/groups/new', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.createPage));
 router.post('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.create));
 
+router.get('/groups/:id/students', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.studentsPage));
+router.post(
+    '/groups/:id/students/:studentId/remove',
+    authenticateWeb,
+    authorize('TEACHER'),
+    asyncHandler(controller.removeStudent),
+);
+
 module.exports = router;

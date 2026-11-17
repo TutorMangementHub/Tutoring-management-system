@@ -57,6 +57,9 @@ body { margin: 0; background: #0b0b0b; }
 .form-actions { display: flex; gap: 10px; margin-top: 18px; }
 .secondary-button { display: inline-flex; min-height: 44px; align-items: center; padding: 0 20px; border: 1px solid #444; border-radius: 9px; color: #ddd; font-size: 15px; text-decoration: none; }
 .secondary-button:hover { background: #292929; }
+.danger-button { display: inline-flex; min-height: 40px; align-items: center; padding: 0 16px; border: 1px solid #6b2f2f; border-radius: 8px; background: #3b2525; color: #f8b4b4; cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; }
+.danger-button:hover { background: #4d2c2c; color: #ffc9c9; }
+.roster-error { margin: 0 0 18px; padding: 12px 14px; border: 1px solid #703333; border-radius: 8px; background: #321b1b; color: #ff9a9a; font-size: 14px; }
 .page-alert, .page-success { margin: 0 0 18px; padding: 12px 14px; border: 1px solid; border-radius: 8px; font-size: 14px; }
 .page-alert { border-color: #703333; background: #321b1b; color: #ff9a9a; }
 .page-success { border-color: #28603d; background: #153322; color: #72e59a; }

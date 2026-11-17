@@ -22,9 +22,23 @@ function create(data) {
     return User.create(data);
 }
 
-// TODO: add findAll, updateById, deleteById and any other queries a feature needs.
+function findAll(filter = {}, { sort = { fullName: 1 } } = {}) {
+    return User.find(filter).sort(sort).lean();
+}
+
+/** Detach a student from their group, returning the updated document. */
+function clearGroupById(id) {
+    return User.findOneAndUpdate(
+        { _id: id, role: 'STUDENT' },
+        { $set: { groupId: null } },
+        { new: true },
+    ).lean();
+}
+
 module.exports = {
     findById,
     findByEmail,
     create,
+    findAll,
+    clearGroupById,
 };
