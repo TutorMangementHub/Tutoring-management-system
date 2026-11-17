@@ -19,6 +19,18 @@
                     <a class="primary-button add-group-button" href="/groups/new">+ Add group</a>
                 </header>
 
+                <form class="group-filters" method="get" action="/groups">
+                    <input type="search" name="search" value="<%= search %>" placeholder="Search groups by name" aria-label="Search groups by name">
+                    <select name="gradeId" aria-label="Filter by grade">
+                        <option value="">All grades</option>
+                        <% grades.forEach((grade) => { %>
+                            <option value="<%= grade._id %>" <%= String(gradeId) === String(grade._id) ? 'selected' : '' %>><%= grade.level %></option>
+                        <% }) %>
+                    </select>
+                    <button class="filter-button" type="submit">Filter</button>
+                    <% if (search || gradeId) { %><a class="clear-filter" href="/groups">Clear</a><% } %>
+                </form>
+
                 <% if (groups.length === 0) { %>
                     <section class="empty-card">
                         <h2>No groups yet</h2>
@@ -37,6 +49,14 @@
                             </article>
                         <% }) %>
                     </section>
+                    <% const pageCount = Math.max(1, Math.ceil(total / pageSize)); %>
+                    <% if (pageCount > 1) { %>
+                        <nav class="pagination" aria-label="Groups pagination">
+                            <% if (page > 1) { %><a href="/groups?page=<%= page - 1 %>&search=<%= encodeURIComponent(search) %>&gradeId=<%= encodeURIComponent(gradeId) %>">← Previous</a><% } else { %><span class="pagination-disabled">← Previous</span><% } %>
+                            <span>Page <%= page %> of <%= pageCount %></span>
+                            <% if (page < pageCount) { %><a href="/groups?page=<%= page + 1 %>&search=<%= encodeURIComponent(search) %>&gradeId=<%= encodeURIComponent(gradeId) %>">Next →</a><% } else { %><span class="pagination-disabled">Next →</span><% } %>
+                        </nav>
+                    <% } %>
                 <% } %>
             </div>
         </main>

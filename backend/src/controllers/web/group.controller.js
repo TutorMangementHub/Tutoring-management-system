@@ -13,13 +13,28 @@ async function teacherDetails(user) {
 }
 
 async function indexPage(request, response) {
-    const [groups, teacher] = await Promise.all([
-        groupRepository.findAll(),
+    const page = Math.max(1, Number.parseInt(request.query.page, 10) || 1);
+    const pageSize = 8;
+    const search = String(request.query.search || '').trim();
+    const gradeId = String(request.query.gradeId || '').trim();
+    const filter = {};
+    if (search) filter.name = { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
+    if (gradeId) filter.gradeId = gradeId;
+
+    const [result, grades, teacher] = await Promise.all([
+        groupRepository.findPage({ filter, page, pageSize }),
+        gradeRepository.findAll(),
         teacherDetails(request.user),
     ]);
     response.render('groups/index', {
         title: 'Groups',
-        groups,
+        groups: result.groups,
+        grades,
+        page: result.page,
+        pageSize: result.pageSize,
+        total: result.total,
+        search,
+        gradeId,
         teacher,
     });
 }
