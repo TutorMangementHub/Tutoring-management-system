@@ -1,40 +1,26 @@
 const { createGroupSchema } = require('../../schemas/group.schema');
-const gradeRepository = require('../../repositories/grade.repository');
 const groupService = require('../../services/group.service');
-const groupRepository = require('../../repositories/group.repository');
 const authService = require('../../services/auth.service');
+const gradeService = require('../../services/grade.service');
 
 async function teacherDetails(user) {
-    const profile = await authService.getProfile(user.id);
-    return {
-        name: profile.fullName || 'Teacher',
-        email: profile.email || user.email || '',
-    };
+    return authService.getTeacherSummary(user.id);
 }
 
 async function indexPage(request, response) {
-    const page = Math.max(1, Number.parseInt(request.query.page, 10) || 1);
-    const pageSize = 8;
-    const search = String(request.query.search || '').trim();
-    const gradeId = String(request.query.gradeId || '').trim();
-    const filter = {};
-    if (search) filter.name = { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
-    if (gradeId) filter.gradeId = gradeId;
-
-    const [result, grades, teacher] = await Promise.all([
-        groupRepository.findPage({ filter, page, pageSize }),
-        gradeRepository.findAll(),
+    const [groupPage, teacher] = await Promise.all([
+        groupService.listGroupPage(request.query),
         teacherDetails(request.user),
     ]);
     response.render('groups/index', {
         title: 'Groups',
-        groups: result.groups,
-        grades,
-        page: result.page,
-        pageSize: result.pageSize,
-        total: result.total,
-        search,
-        gradeId,
+        groups: groupPage.groups,
+        grades: groupPage.grades,
+        page: groupPage.page,
+        pageSize: groupPage.pageSize,
+        total: groupPage.total,
+        search: groupPage.search,
+        gradeId: groupPage.gradeId,
         teacher,
     });
 }
@@ -49,7 +35,7 @@ async function renderCreatePage(response, {
 } = {}) {
     response.status(status).render('groups/create', {
         title: 'Create a group',
-        grades: grades || await gradeRepository.findAll(),
+        grades: grades || await gradeService.listGrades(),
         values: {
             name: values.name || '',
             number: values.number || '',

@@ -2,8 +2,34 @@ const HttpError = require('../utils/http-error');
 const groupRepository = require('../repositories/group.repository');
 const gradeRepository = require('../repositories/grade.repository');
 
+const DEFAULT_PAGE_SIZE = 8;
+
 function listAvailable() {
     return groupRepository.findAll({ isActive: true });
+}
+
+function buildGroupFilter({ search, gradeId }) {
+    const filter = {};
+    if (search) {
+        filter.name = {
+            $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+            $options: 'i',
+        };
+    }
+    if (gradeId) filter.gradeId = gradeId;
+    return filter;
+}
+
+async function listGroupPage({ page, search, gradeId } = {}) {
+    const currentPage = Math.max(1, Number.parseInt(page, 10) || 1);
+    const currentSearch = String(search || '').trim();
+    const currentGradeId = String(gradeId || '').trim();
+    const filter = buildGroupFilter({ search: currentSearch, gradeId: currentGradeId });
+    const [result, grades] = await Promise.all([
+        groupRepository.findPage({ filter, page: currentPage, pageSize: DEFAULT_PAGE_SIZE }),
+        gradeRepository.findAll(),
+    ]);
+    return { ...result, grades, search: currentSearch, gradeId: currentGradeId };
 }
 
 async function createGroup(data) {
@@ -25,4 +51,4 @@ async function assertAssignable(groupId, gradeId) {
     return group;
 }
 
-module.exports = { listAvailable, createGroup, assertAssignable };
+module.exports = { listAvailable, listGroupPage, createGroup, assertAssignable };
