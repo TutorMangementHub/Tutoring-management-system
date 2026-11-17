@@ -82,11 +82,11 @@
                         </label>
                         <label class="slot-field" for="start">
                             <span>Start</span>
-                            <input id="start" name="start" type="time" value="<%= values.start %>" required>
+                            <input id="start" name="start" type="time" min="08:00" max="17:00" value="<%= values.start %>" required>
                         </label>
                         <label class="slot-field" for="end">
                             <span>End</span>
-                            <input id="end" name="end" type="time" value="<%= values.end %>" required>
+                            <input id="end" name="end" type="time" min="08:00" max="17:00" value="<%= values.end %>" required>
                         </label>
                         <button class="primary-button slot-submit" type="submit">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -95,7 +95,7 @@
                             Add slot
                         </button>
                     </form>
-                    <p class="slot-form-hint">Up to 8 slots per day. Slots cannot overlap.</p>
+                    <p class="slot-form-hint">Available between 08:00 and 17:00 · Up to 8 slots per day · Slots cannot overlap.</p>
                 </section>
             </div>
         </main>

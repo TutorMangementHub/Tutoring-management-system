@@ -58,6 +58,30 @@ test('createFreeSlotSchema rejects an end time that is not after the start', () 
     assert.equal(reversed.success, false);
 });
 
+test('createFreeSlotSchema keeps slots between 08:00 and 17:00', () => {
+    const boundary = createFreeSlotSchema.safeParse({
+        dayOfWeek: 'MONDAY',
+        start: '08:00',
+        end: '17:00',
+    });
+    const tooEarly = createFreeSlotSchema.safeParse({
+        dayOfWeek: 'MONDAY',
+        start: '07:00',
+        end: '08:00',
+    });
+    const tooLate = createFreeSlotSchema.safeParse({
+        dayOfWeek: 'MONDAY',
+        start: '16:00',
+        end: '17:30',
+    });
+
+    assert.equal(boundary.success, true);
+    assert.equal(tooEarly.success, false);
+    assert.equal(tooLate.success, false);
+    assert.match(tooEarly.error.issues[0].message, /between 08:00 and 17:00/);
+    assert.match(tooLate.error.issues[0].message, /between 08:00 and 17:00/);
+});
+
 test('createFreeSlotSchema rejects a malformed time', () => {
     const result = createFreeSlotSchema.safeParse({
         dayOfWeek: 'MONDAY',
