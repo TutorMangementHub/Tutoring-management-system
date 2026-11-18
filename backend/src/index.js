@@ -12,5 +12,6 @@ function createServer() {
 module.exports = {
     app,
     createServer,
+    securityHeaders: createApp.securityHeaders,
     SERVICE_NAME: createApp.SERVICE_NAME,
 };
