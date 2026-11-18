@@ -61,28 +61,79 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          COOKIE_SECURE: ${{ secrets.COOKIE_SECURE }}
+          COOKIE_NAME: ${{ secrets.COOKIE_NAME }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: JWT_SECRET,MONGODB_URI
+          envs: JWT_SECRET,MONGODB_URI,COOKIE_SECURE,COOKIE_NAME
           script: |
             set -eu
             export JWT_SECRET="${JWT_SECRET}"
             export MONGODB_URI="${MONGODB_URI}"
+            export COOKIE_SECURE="${COOKIE_SECURE:-true}"
+            export COOKIE_NAME="${COOKIE_NAME:-tms_token}"
             cd "${{ env.VPS_APP_PATH }}"
             git fetch origin main
             git checkout main
             git reset --hard origin/main
+
+            if command -v nginx >/dev/null 2>&1; then
+              cat > /tmp/tutoring-nginx.conf <<'NGINX'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+}
+NGINX
+              sudo install -m 0644 /tmp/tutoring-nginx.conf /etc/nginx/conf.d/tutoring-management.conf
+              sudo nginx -t
+              sudo systemctl reload nginx
+            else
+              echo 'Nginx is not installed on the VPS' >&2
+              exit 1
+            fi
+
             cd backend
             test -f ecosystem.config.cjs
             npm ci --omit=dev
             pm2 --version
-            
-            # Restart with updated env or fallback to initial start
-            pm2 restart tutoring-management-api --update-env || pm2 start ecosystem.config.cjs --only tutoring-management-api
+
+            pm2 startOrRestart ecosystem.config.cjs --only tutoring-management-api --update-env
             pm2 save
-            
-            sleep 2
+
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              if curl --fail --silent --show-error http://127.0.0.1:3000/health/ready > /tmp/tutoring-health.json; then
+                break
+              fi
+              if [ "${attempt}" -eq 10 ]; then
+                pm2 logs tutoring-management-api --lines 100 --nostream
+                exit 1
+              fi
+              sleep 2
+            done
+
             curl --fail --silent --show-error http://127.0.0.1:3000/health
+            curl --fail --silent --show-error http://127.0.0.1:3000/login >/tmp/tutoring-login.html
+            grep -q 'Teacher sign in' /tmp/tutoring-login.html
+
+            if command -v nginx >/dev/null 2>&1; then
+              curl --fail --silent --show-error http://127.0.0.1/health >/dev/null
+              curl --fail --silent --show-error http://127.0.0.1/login >/tmp/tutoring-nginx-login.html
+              grep -q 'Teacher sign in' /tmp/tutoring-nginx-login.html
+            fi

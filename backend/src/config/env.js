@@ -31,6 +31,20 @@ if (!jwtSecret) {
     throw new Error('JWT_SECRET is required in production');
 }
 
+function readBoolean(name, fallback) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === '') {
+        return fallback;
+    }
+    if (raw.toLowerCase() === 'true') {
+        return true;
+    }
+    if (raw.toLowerCase() === 'false') {
+        return false;
+    }
+    throw new Error(`${name} must be true or false`);
+}
+
 module.exports = {
     nodeEnv,
     isProduction,
@@ -41,7 +55,7 @@ module.exports = {
     jwtSecret,
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
     cookieName: process.env.COOKIE_NAME || 'tms_token',
-    cookieSecure: process.env.COOKIE_SECURE === 'true' || isProduction,
+    cookieSecure: readBoolean('COOKIE_SECURE', false),
     clientOrigin: process.env.CLIENT_ORIGIN || '*',
     centerTimezone: process.env.CENTER_TIMEZONE || 'Africa/Algiers',
 };
