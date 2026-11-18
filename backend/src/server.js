@@ -5,8 +5,15 @@ const db = require('./config/db');
 const server = createServer();
 
 async function start() {
+    if (!env.mongodbUri) {
+        throw new Error('MONGODB_URI is required before the SSR API can start');
+    }
+    if (!env.jwtSecret) {
+        throw new Error('JWT_SECRET is required before the SSR API can start');
+    }
+
     await db.connect();
-    console.log(`Connected to MongoDB database "${db.mongoose.connection.name}"`);
+    console.log(`Connected to MongoDB database "${db.mongoose.connection.name}" via Mongoose`);
 
     server.listen(env.port, env.host, () => {
         console.log(`Tutoring API listening on http://${env.host}:${env.port}`);
