@@ -16,6 +16,7 @@ const openapi = {
         { name: 'Health', description: 'Application and database health checks' },
         { name: 'Authentication', description: 'Student registration and account authentication' },
         { name: 'Groups', description: 'Teacher-managed student groups' },
+        { name: 'Sessions', description: 'Study sessions seen by students' },
     ],
     paths: {
         '/health': {
@@ -161,6 +162,49 @@ const openapi = {
                 },
             },
         },
+        '/api/sessions/mine': {
+            get: {
+                tags: ['Sessions'],
+                summary: 'Calendar of my group (logged-in student)',
+                operationId: 'getMyCalendar',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: 'from', in: 'query', schema: { type: 'string', example: '2026-11-01' }, description: 'First day (YYYY-MM-DD)' },
+                    { name: 'to', in: 'query', schema: { type: 'string', example: '2026-11-30' }, description: 'Last day (YYYY-MM-DD)' },
+                ],
+                responses: {
+                    200: {
+                        description: 'Sessions sorted by date then start time',
+                        content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Session' } } } },
+                    },
+                    400: { $ref: '#/components/responses/ValidationError' },
+                    401: { $ref: '#/components/responses/UnauthorizedError' },
+                    403: { $ref: '#/components/responses/ForbiddenError' },
+                    404: { $ref: '#/components/responses/NotFoundError' },
+                },
+            },
+        },
+        '/api/sessions/mine/upcoming': {
+            get: {
+                tags: ['Sessions'],
+                summary: 'Next sessions of my group (logged-in student)',
+                operationId: 'getMyUpcomingSessions',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 50, default: 5 } },
+                ],
+                responses: {
+                    200: {
+                        description: 'Upcoming sessions',
+                        content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Session' } } } },
+                    },
+                    400: { $ref: '#/components/responses/ValidationError' },
+                    401: { $ref: '#/components/responses/UnauthorizedError' },
+                    403: { $ref: '#/components/responses/ForbiddenError' },
+                    404: { $ref: '#/components/responses/NotFoundError' },
+                },
+            },
+        },
     },
     components: {
         securitySchemes: {
@@ -242,6 +286,18 @@ const openapi = {
                     name: { type: 'string' },
                     isActive: { type: 'boolean' },
                     studentCount: { type: 'integer', minimum: 0 },
+                },
+            },
+            Session: {
+                type: 'object',
+                required: ['id', 'title', 'sessionDate', 'startMin', 'endMin', 'groups'],
+                properties: {
+                    id: { type: 'string' },
+                    title: { type: 'string', example: 'Math revision' },
+                    sessionDate: { type: 'string', format: 'date-time', description: 'Midnight UTC of the session day' },
+                    startMin: { type: 'integer', description: 'Minutes since midnight', example: 540 },
+                    endMin: { type: 'integer', description: 'Minutes since midnight', example: 600 },
+                    groups: { type: 'array', items: { type: 'string' }, example: ['Group 1'] },
                 },
             },
             ErrorResponse: {

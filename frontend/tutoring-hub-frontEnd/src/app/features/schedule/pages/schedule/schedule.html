@@ -1,0 +1,112 @@
+<div class="flex min-h-screen bg-black text-white">
+  <aside class="flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0d0d0f] p-5">
+    <p class="text-lg font-bold">Tutor Hub</p>
+    <nav class="mt-8 space-y-1">
+      <a routerLink="/dashboard" class="block rounded-lg px-3 py-2.5 text-slate-300 hover:bg-white/5">Home</a>
+      <a routerLink="/schedule" class="block rounded-lg bg-[#1677ff]/15 px-3 py-2.5 font-medium text-[#3d8bff]">Calendar</a>
+    </nav>
+    <div class="mt-auto">
+      <p class="font-semibold">{{ user()?.fullName }}</p>
+      <p class="text-xs text-slate-400">{{ groupLabel() }}</p>
+      <button type="button" class="mt-3 text-sm text-slate-300 hover:text-white" (click)="logout()">Log out</button>
+    </div>
+  </aside>
+
+  <main class="min-w-0 flex-1 p-8">
+    <h1 class="text-4xl font-bold">Calendar</h1>
+
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <button type="button" class="text-xl text-[#3d8bff]" (click)="previous()">&lt;</button>
+        <button type="button" class="text-xl text-[#3d8bff]" (click)="next()">&gt;</button>
+        <h2 class="text-lg font-semibold">{{ title() }}</h2>
+      </div>
+      <div class="flex items-center gap-4">
+        <button type="button" class="font-medium text-[#3d8bff]" (click)="today()">Today</button>
+        <div class="flex rounded-lg bg-[#2b2b2e] p-1">
+          @for (name of views; track name) {
+            <button type="button" class="rounded-md px-4 py-1.5 font-medium capitalize"
+              [class.bg-[#1c1c1e]]="view() === name" (click)="setView(name)">{{ name }}</button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (errorMessage()) { <p class="mt-4 text-sm text-red-400">{{ errorMessage() }}</p> }
+
+    <section class="mt-5 rounded-2xl bg-[#1c1c1e] p-4">
+      @if (view() !== 'month') {
+        <div class="flex">
+          <div class="w-14 shrink-0"></div>
+          <div class="grid flex-1" [style.grid-template-columns]="'repeat(' + columns().length + ', minmax(0, 1fr))'">
+            @for (column of columns(); track column.key) {
+              <div class="py-2 text-center text-sm text-slate-400">
+                {{ column.weekDay }}
+                <div class="mx-auto mt-1 flex h-8 w-8 items-center justify-center rounded-full font-bold"
+                  [class.bg-[#1677ff]]="column.isToday" [class.text-white]="column.isToday">{{ column.num }}</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="flex">
+          <div class="relative w-14 shrink-0" [style.height.px]="hours().length * hourHeight">
+            @for (hour of hours(); track hour) {
+              <span class="absolute right-2 -translate-y-1/2 text-xs text-slate-400"
+                [style.top.px]="(hour - startHour()) * hourHeight">{{ formatTime(hour * 60) }}</span>
+            }
+          </div>
+          <div class="grid flex-1" [style.grid-template-columns]="'repeat(' + columns().length + ', minmax(0, 1fr))'">
+            @for (column of columns(); track column.key) {
+              <div class="relative border-l border-white/10" [style.height.px]="hours().length * hourHeight">
+                @for (hour of hours(); track hour) {
+                  <div class="absolute inset-x-0 border-t border-white/10" [style.top.px]="(hour - startHour()) * hourHeight"></div>
+                }
+                @for (session of column.sessions; track session.id) {
+                  <div class="absolute inset-x-1 overflow-hidden rounded-lg border px-2 py-1 text-xs {{ colorOf(session) }}"
+                    [style.top.px]="top(session)" [style.height.px]="height(session)">
+                    <p class="truncate font-bold">{{ session.title }}</p>
+                    <p>{{ formatTime(session.startMin) }}–{{ formatTime(session.endMin) }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="grid grid-cols-7 gap-1 text-center text-sm text-slate-400">
+          @for (name of weekDays; track name) { <div class="py-2">{{ name }}</div> }
+        </div>
+        <div class="grid grid-cols-7 gap-1">
+          @for (cell of emptyCells(); track $index) { <div></div> }
+          @for (day of monthDays(); track day.key) {
+            <button type="button" class="min-h-24 rounded-lg bg-[#2b2b2e] p-1.5 text-left text-xs hover:bg-[#363639]" (click)="openDay(day.key)">
+              <span class="flex h-6 w-6 items-center justify-center rounded-full font-semibold"
+                [class.bg-[#1677ff]]="day.isToday">{{ day.num }}</span>
+              @for (session of day.sessions; track session.id) {
+                <span class="mt-1 block truncate rounded border px-1.5 py-0.5 {{ colorOf(session) }}">
+                  {{ formatTime(session.startMin) }} {{ session.title }}
+                </span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-xl font-bold">Upcoming classes</h2>
+      @if (upcoming().length === 0) {
+        <p class="mt-3 text-sm text-slate-400">No upcoming classes.</p>
+      }
+      <ul class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        @for (session of upcoming(); track session.id) {
+          <li class="rounded-xl border p-3 {{ colorOf(session) }}">
+            <p class="font-semibold">{{ session.title }}</p>
+            <p class="text-sm">{{ session.sessionDate.slice(0, 10) }} · {{ formatTime(session.startMin) }}–{{ formatTime(session.endMin) }}</p>
+          </li>
+        }
+      </ul>
+    </section>
+  </main>
+</div>
