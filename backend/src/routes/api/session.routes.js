@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const asyncHandler = require('../../middleware/async-handler');
 const controller = require('../../controllers/api/session.controller');
 const authenticateApi = require('../../middleware/authenticate-api');
 const { authorize } = require('../../middleware/auth');
@@ -14,14 +13,14 @@ router.get(
     authenticateApi,
     authorize('STUDENT'),
     validate(calendarQuerySchema, 'query'),
-    asyncHandler(controller.mine),
+    controller.mine,
 );
 router.get(
     '/mine/upcoming',
     authenticateApi,
     authorize('STUDENT'),
     validate(upcomingQuerySchema, 'query'),
-    asyncHandler(controller.upcoming),
+    controller.upcoming,
 );
 
 module.exports = router;

@@ -11,7 +11,6 @@ const apiRouter = require('./routes');
 const { apiLimiter } = require('./middleware/rate-limit');
 const notFound = require('./middleware/not-found');
 const errorHandler = require('./middleware/error-handler');
-const asyncHandler = require('./middleware/async-handler');
 const openapi = require('./openapi');
 const webAuthRoutes = require('./routes/web/auth.routes');
 const webGroupRoutes = require('./routes/web/group.routes');
@@ -91,13 +90,10 @@ function createApp() {
     app.use('/', webGroupRoutes);
     app.use('/', webFreeSlotRoutes);
 
-    app.get(
-        '/health/ready',
-        asyncHandler(async (_request, response) => {
-            await db.ping();
-            response.json({ status: 'ready' });
-        }),
-    );
+    app.get('/health/ready', async (_request, response) => {
+        await db.ping();
+        response.json({ status: 'ready' });
+    });
 
     app.use('/api', apiLimiter, apiRouter);
 
