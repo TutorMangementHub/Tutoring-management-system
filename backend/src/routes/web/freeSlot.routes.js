@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const asyncHandler = require('../../middleware/async-handler');
 const authenticateWeb = require('../../middleware/authenticate-web');
 const { authorize } = require('../../middleware/auth');
 const controller = require('../../controllers/web/freeSlot.controller');
@@ -10,21 +9,21 @@ router.get(
     '/groups/:groupId/slots',
     authenticateWeb,
     authorize('TEACHER'),
-    asyncHandler(controller.slotsPage),
+    controller.slotsPage,
 );
 
 router.post(
     '/groups/:groupId/slots',
     authenticateWeb,
     authorize('TEACHER'),
-    asyncHandler(controller.create),
+    controller.create,
 );
 
 router.post(
     '/groups/:groupId/slots/:slotId/delete',
     authenticateWeb,
     authorize('TEACHER'),
-    asyncHandler(controller.remove),
+    controller.remove,
 );
 
 module.exports = router;

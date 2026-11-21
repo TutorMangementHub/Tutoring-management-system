@@ -1,22 +1,21 @@
 const { Router } = require('express');
-const asyncHandler = require('../../middleware/async-handler');
 const authenticateWeb = require('../../middleware/authenticate-web');
 const { authorize } = require('../../middleware/auth');
 const controller = require('../../controllers/web/group.controller');
 
 const router = Router();
 
-router.get('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.indexPage));
-router.get('/groups/new', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.createPage));
-router.post('/groups', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.create));
+router.get('/groups', authenticateWeb, authorize('TEACHER'), controller.indexPage);
+router.get('/groups/new', authenticateWeb, authorize('TEACHER'), controller.createPage);
+router.post('/groups', authenticateWeb, authorize('TEACHER'), controller.create);
 
-router.get('/groups/:id/students', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.studentsPage));
+router.get('/groups/:id/students', authenticateWeb, authorize('TEACHER'), controller.studentsPage);
 router.post(
     '/groups/:id/students/:studentId/remove',
     authenticateWeb,
     authorize('TEACHER'),
-    asyncHandler(controller.removeStudent),
+    controller.removeStudent,
 );
-router.post('/groups/:id/delete', authenticateWeb, authorize('TEACHER'), asyncHandler(controller.deleteGroup));
+router.post('/groups/:id/delete', authenticateWeb, authorize('TEACHER'), controller.deleteGroup);
 
 module.exports = router;
