@@ -1,0 +1,82 @@
+<div class="flex min-h-screen bg-black text-white">
+  <app-nav></app-nav>
+
+  <main class="min-w-0 flex-1 px-5 py-10 sm:px-12">
+    <div class="mx-auto max-w-[1380px]">
+      <header class="mb-8">
+        <h1 class="text-3xl font-semibold tracking-tight">Home</h1>
+      </header>
+
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-[525px_minmax(0,1fr)]">
+        <section class="flex min-h-[315px] flex-col rounded-[18px] bg-[#1c1c1e] p-8">
+          <p class="text-sm font-medium text-slate-400">Next session</p>
+
+          @if (nextSession(); as session) {
+            <h2 class="mt-6 text-3xl font-semibold">{{ session.title }}</h2>
+            <p class="mt-4 flex items-center gap-2.5 text-base">
+              <span class="h-2 w-2 rounded-full bg-[#1677ff]"></span>
+              <span>{{ relativeLabel(session) }}</span>
+            </p>
+            <p class="mt-3 text-sm text-slate-400">{{ fullDate(session) }}</p>
+            @if (session.groups.length) {
+              <p class="mt-2 text-sm text-slate-400">Group: {{ session.groups.join(', ') }}</p>
+            }
+
+            <a
+              class="mt-auto inline-flex w-fit items-center rounded-lg bg-[#1677ff] px-6 py-3 text-sm font-semibold transition hover:bg-blue-500"
+              routerLink="/schedule"
+            >
+              View details
+            </a>
+          } @else {
+            <p class="mt-6 text-lg text-slate-400">There is no next session.</p>
+          }
+        </section>
+
+        <section class="rounded-[18px] bg-[#1c1c1e] p-8">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Planned</h2>
+            <span class="rounded-full bg-[#2a2a2d] px-3 py-1 text-xs font-medium text-slate-400">Read only</span>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <button
+              class="flex h-9 w-9 items-center justify-center rounded-lg text-lg text-slate-300 transition hover:bg-[#2a2a2d] hover:text-white"
+              type="button"
+              aria-label="Previous month"
+              (click)="changeMonth(-1)"
+            >
+              ‹
+            </button>
+            <p class="text-lg font-medium">{{ monthLabel() }}</p>
+            <button
+              class="flex h-9 w-9 items-center justify-center rounded-lg text-lg text-slate-300 transition hover:bg-[#2a2a2d] hover:text-white"
+              type="button"
+              aria-label="Next month"
+              (click)="changeMonth(1)"
+            >
+              ›
+            </button>
+          </div>
+
+          <div class="mt-5 grid grid-cols-7 gap-2 text-center text-xs font-medium uppercase tracking-wide text-slate-500">
+            @for (label of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; track label) {
+              <span>{{ label }}</span>
+            }
+          </div>
+
+          <div class="mt-2 grid grid-cols-7 gap-2">
+            @for (day of days(); track day.iso) {
+              <div
+                [class]="dayClass(day)"
+                [attr.aria-label]="day.iso + (day.hasSession ? ' - session planned' : '')"
+              >
+                {{ day.day }}
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>

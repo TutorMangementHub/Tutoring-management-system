@@ -37,7 +37,7 @@ export class Login {
           this.submitting.set(false);
           return;
         }
-        void this.router.navigate(['/dashboard']);
+        void this.router.navigate(['/']);
       },
       error: (error) => {
         this.errorMessage.set(error?.error?.error?.message ?? 'Unable to log in. Please try again.');

@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Nav } from '../../../../shared/nav/nav';
 import { Session } from '../../../../core/models/session.models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ScheduleService } from '../../schedule.service';
@@ -40,7 +40,7 @@ function addDays(date: Date, days: number): Date {
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [RouterLink],
+  imports: [Nav],
   templateUrl: './schedule.html',
 })
 export class Schedule {

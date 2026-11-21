@@ -1,1 +1,123 @@
-<main class="min-h-screen bg-[#f7f8fc] px-5 py-10 text-slate-100"><section class="mx-auto w-full max-w-[430px] rounded-2xl bg-[#20242d] p-8 shadow-2xl sm:p-10"><div class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#1677ff]"><span class="text-3xl font-light">+</span></div><h1 class="text-3xl font-bold">Create account</h1><p class="mt-2 text-sm text-slate-400">Join your tutoring hub today.</p><form class="mt-7 space-y-4" [formGroup]="form" (ngSubmit)="submit()"><label class="block text-sm font-medium">Full name<input class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]" formControlName="fullName" placeholder="Your full name" /></label><label class="block text-sm font-medium">Email<input class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]" type="email" formControlName="email" placeholder="you@example.com" /></label><label class="block text-sm font-medium">Grade<select class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]" formControlName="gradeId"><option value="">Select your grade</option>@for (grade of grades(); track grade._id) {<option [value]="grade._id">{{ grade.level }}</option>}</select></label><label class="block text-sm font-medium">Group<select class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]" formControlName="groupId"><option value="">Select your group</option>@for (group of groups(); track group._id) {@if (groupMatchesGrade(group)) {<option [value]="group._id">{{ group.name }} ({{ group.studentCount }} students)</option>}}</select></label><label class="block text-sm font-medium">Password<span class="relative mt-2 block"><input class="w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 pr-16 outline-none focus:border-[#1677ff]" [type]="showPassword() ? 'text' : 'password'" formControlName="password" placeholder="At least 8 characters" /><button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#62a0ff]" (click)="showPassword.update((value) => !value)">{{ showPassword() ? 'Hide' : 'Show' }}</button></span></label><label class="block text-sm font-medium">Confirm password<input class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]" type="password" formControlName="confirmPassword" placeholder="Repeat your password" /></label>@if (errorMessage()) { <p class="text-sm text-red-400">{{ errorMessage() }}</p> }<button class="w-full rounded-lg bg-[#1677ff] py-3.5 font-semibold hover:bg-blue-500 disabled:opacity-60" type="submit" [disabled]="submitting()">{{ submitting() ? 'Creating account...' : 'Create account' }}</button></form><p class="mt-7 text-center text-sm text-slate-400">Already have an account? <a routerLink="/login" class="font-semibold text-[#62a0ff]">Log in</a></p></section></main>
+<div class="flex min-h-screen bg-black text-white">
+  <main class="min-w-0 flex-1 px-5 py-10">
+    <section class="mx-auto w-full max-w-[430px] rounded-2xl bg-[#20242d] p-8 shadow-2xl sm:p-10">
+    <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#1677ff]">
+      <span class="text-3xl font-light">+</span>
+    </div>
+    <h1 class="text-3xl font-bold">Create account</h1>
+    <p class="mt-2 text-sm text-slate-400">Join your tutoring hub today.</p>
+
+    <form class="mt-7 space-y-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="block text-sm font-medium">
+        Full name
+        <input
+          class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]"
+          formControlName="fullName"
+          placeholder="Your full name"
+        />
+        @if (fieldError('fullName')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('fullName') }}</span>
+        }
+      </label>
+
+      <label class="block text-sm font-medium">
+        Email
+        <input
+          class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]"
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+        />
+        @if (fieldError('email')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('email') }}</span>
+        }
+      </label>
+
+      <label class="block text-sm font-medium">
+        Grade
+        <select
+          class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]"
+          formControlName="gradeId"
+        >
+          <option value="">Select your grade</option>
+          @for (grade of grades(); track grade._id) {
+            <option [value]="grade._id">{{ grade.level }}</option>
+          }
+        </select>
+        @if (fieldError('gradeId')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('gradeId') }}</span>
+        }
+      </label>
+
+      <label class="block text-sm font-medium">
+        Group
+        <select
+          class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]"
+          formControlName="groupId"
+        >
+          <option value="">Select your group</option>
+          @for (group of groups(); track group._id) {
+            @if (groupMatchesGrade(group)) {
+              <option [value]="group._id">{{ group.name }} ({{ group.studentCount }} students)</option>
+            }
+          }
+        </select>
+        @if (fieldError('groupId')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('groupId') }}</span>
+        }
+      </label>
+
+      <label class="block text-sm font-medium">
+        Password
+        <span class="relative mt-2 block">
+          <input
+            class="w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 pr-16 outline-none focus:border-[#1677ff]"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="At least 8 characters"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#62a0ff]"
+            (click)="showPassword.update((value) => !value)"
+          >
+            {{ showPassword() ? 'Hide' : 'Show' }}
+          </button>
+        </span>
+        @if (fieldError('password')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('password') }}</span>
+        }
+      </label>
+
+      <label class="block text-sm font-medium">
+        Confirm password
+        <input
+          class="mt-2 w-full rounded-lg border border-slate-600 bg-[#2b303a] px-4 py-3 outline-none focus:border-[#1677ff]"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="Repeat your password"
+        />
+        @if (fieldError('confirmPassword')) {
+          <span class="mt-1.5 block text-xs text-red-400">{{ fieldError('confirmPassword') }}</span>
+        }
+      </label>
+
+      @if (errorMessage()) {
+        <p class="text-sm text-red-400" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button
+        class="w-full rounded-lg bg-[#1677ff] py-3.5 font-semibold hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+        type="submit"
+        [disabled]="submitting()"
+      >
+        {{ submitting() ? 'Creating account...' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="mt-7 text-center text-sm text-slate-400">
+      Already have an account? <a routerLink="/login" class="font-semibold text-[#62a0ff]">Log in</a>
+    </p>
+    </section>
+  </main>
+</div>
